@@ -28,6 +28,8 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private Entity ground;
     private ArrayList<Entity> obstacles = new ArrayList<>();
     
+    private static final String TICK_COMMAND = "tick";
+    
     public MainWindow()
     {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,20 +40,23 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.setLayout(null);
         
         // todo: load UI
-        this.setupInstructions();
         
         this.addKeyListener(this);
+        
+        // Background behind everything else
+        this.setupBackground();
         
         // Initialize player before starting the ticks
         this.setupPlayer();
         
-        this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
-        this.getContentPane().add(this.ground);
-        System.out.println(this.ground.getLocation());
+        this.setupGround();
+        
+        // Overlay instructions
+        this.setupInstructions();
         
         // ~60 game ticks per second
         this.timer = new Timer(18, this); // For 60 tick rate updates
-        this.timer.setActionCommand("tick");
+        this.timer.setActionCommand(TICK_COMMAND);
         
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -63,6 +68,18 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private void setupPlayer() {
         this.player = new Character(new Point(100, 0));
         this.getContentPane().add(this.player);
+    }
+    
+    private void setupGround() {
+        this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
+        this.getContentPane().add(this.ground);
+        System.out.println(this.ground.getLocation());
+    }
+    
+    private void setupBackground() {
+        ScrollingBackdrop backdrop = new ScrollingBackdrop(this.getWidth(), this.getHeight());
+        
+        add(backdrop);
     }
     
     private void setupInstructions() {
@@ -83,9 +100,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         }
         String command = event.getActionCommand();
         
-        if (command.equals("tick"))
+        if (command.equals(TICK_COMMAND))
         {
-            // Delta time updates
+            // Delta time updates            
             long currentTime = System.nanoTime() / 1000000;
             int dTime = (int) (currentTime - this.lastTick); // Divide by 1,000,000 to convert to miliseconds
             this.lastTick = currentTime;
