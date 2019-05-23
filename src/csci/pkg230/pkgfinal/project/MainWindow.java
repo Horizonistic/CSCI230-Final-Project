@@ -38,12 +38,12 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.setLayout(null);
         
         // todo: load UI
+        this.setupInstructions();
         
         this.addKeyListener(this);
         
         // Initialize player before starting the ticks
-        this.player = new Character(new Point(100, 0));
-        this.getContentPane().add(this.player);
+        this.setupPlayer();
         
         this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
         this.getContentPane().add(this.ground);
@@ -57,6 +57,20 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.pack();
         this.setVisible(true);
+        this.setResizable(false);
+    }
+    
+    private void setupPlayer() {
+        this.player = new Character(new Point(100, 0));
+        this.getContentPane().add(this.player);
+    }
+    
+    private void setupInstructions() {
+//        JLabel label = new JLabel("Press SPACE to begin…");
+//        
+//        Font font = new Font("Menlo", 120);
+//        
+//        label.setFont(font);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class Character extends Entity
         this.hitbox.setLocation(this.position);
     }
     
-    // Add instant upgward velocity next game tick
+    // Add instant upward velocity next game tick
     public void jump()
     {
         // Negative for up

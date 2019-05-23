@@ -43,7 +43,7 @@ public class Texture extends JPanel
         }
         
         /*
-        *   Width and height are passed as percetages;
+        *   Width and height are passed as percentages;
         *   width = 150 means the axis is scaled 150%
         */
         public void resizeImage(float width, float height)
