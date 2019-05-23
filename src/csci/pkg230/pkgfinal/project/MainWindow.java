@@ -31,6 +31,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private ArrayList<Entity> obstacles = new ArrayList<>();
 
     private static final String TICK_COMMAND = "tick";
+    
+    
+    private Game game = new Game();
+    
 
     public MainWindow() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
