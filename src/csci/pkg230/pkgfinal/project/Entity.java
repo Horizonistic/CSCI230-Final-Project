@@ -9,10 +9,20 @@ import javax.swing.JPanel;
 // Responsible for a graphical asset and its associated hitbox.
 public class Entity extends JPanel
 {
-    protected final float MAX_X_VELOCITY = 10.0f;
     protected final int OBSTACLE_MOVEMENT_VELOCITY = 4;
     
-    // Subject to change
+    public class Dimensions
+    {
+        public static final int PLAYER_WIDTH = 100;
+        public static final int PLAYER_HEIGHT = 100;
+        
+        public static final int OBSTACLE_WIDTH = 100;
+        public static final int OBSTACLE_HEIGHT = 1000;
+        
+        public static final int GROUND_WIDTH = MainWindow.WINDOW_WIDTH;
+        public static final int GROUND_HEIGHT = 50;
+    }
+    
     public enum Type {
         PLAYER,
         OBSTACLE,
@@ -46,17 +56,17 @@ public class Entity extends JPanel
         switch (type)
         {
             case PLAYER:
-                this.texture = new Texture("images/player.png", new Rectangle(this.position.x, this.position.y, 200, 200));
+                this.texture = new Texture("images/player.png", new Rectangle(this.position.x, this.position.y, Dimensions.PLAYER_WIDTH, Dimensions.PLAYER_HEIGHT));
                 this.add(this.texture);
                 break;
             
             case OBSTACLE:
-                this.texture = new Texture("images/obstacle.png", new Rectangle(this.position.x, this.position.y, 100, Math.abs(this.position.y - MainWindow.WINDOW_HEIGHT)));
+                this.texture = new Texture("images/obstacle.png", new Rectangle(this.position.x, this.position.y, Dimensions.OBSTACLE_WIDTH, Dimensions.OBSTACLE_HEIGHT));
                 this.add(this.texture);
                 break;
                 
             case GROUND:
-                this.texture = new Texture("images/ground_temp.png", new Rectangle(this.position.x, this.position.y, MainWindow.WINDOW_WIDTH, 50));
+                this.texture = new Texture("images/ground_temp.png", new Rectangle(this.position.x, this.position.y, Dimensions.GROUND_WIDTH, Dimensions.GROUND_HEIGHT));
                 this.add(this.texture);
                 break;
             
@@ -65,23 +75,20 @@ public class Entity extends JPanel
         }
     }
     
-    // Let's also do the same for the hitboxes
-    // Values are hard-coded for sake of laziness
     private void loadHitboxFromType(Type type)
     {
-        // todo: add appropriate shape for each type's htibox
         switch (type)
         {
             case PLAYER:
-                this.hitbox = new Rectangle(this.position.x, this.position.y, 200, 200);
+                this.hitbox = new Rectangle(this.position.x, this.position.y, Dimensions.PLAYER_WIDTH, Dimensions.PLAYER_HEIGHT);
                 break;
             
             case OBSTACLE:
-                this.hitbox = new Rectangle(this.position.x, this.position.y, 100, Math.abs(this.position.y - MainWindow.WINDOW_HEIGHT));
+                this.hitbox = new Rectangle(this.position.x, this.position.y, Dimensions.OBSTACLE_WIDTH, Dimensions.OBSTACLE_HEIGHT);
                 break;
                 
             case GROUND:
-                this.hitbox = new Rectangle(this.position.x, this.position.y, MainWindow.WINDOW_WIDTH, 50);
+                this.hitbox = new Rectangle(this.position.x, this.position.y, Dimensions.GROUND_WIDTH, Dimensions.GROUND_HEIGHT);
                 break;
             
             case BACKGROUND:

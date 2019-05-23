@@ -33,8 +33,7 @@ public class Texture extends JPanel
                 ImageIcon imageIcon = new ImageIcon(image);
                 this.label.setIcon(imageIcon);
                 this.add(label);
-                this.label.setBounds(this.shape);
-                this.setBounds(this.shape);
+                this.resizeImage(this.shape.width, this.shape.height);
             }
             catch (IOException e)
             {
@@ -53,13 +52,19 @@ public class Texture extends JPanel
             float y = this.label.getIcon().getIconHeight();
             
             // Scale to new dimensions
-            int newWidth = (int) (x * (width / 100.0));
-            int newHeight = (int) (y * (height / 100.0));
+            int newWidth = (int) (x * (width / 100.0f));
+            int newHeight = (int) (y * (height / 100.0f));
+            
+            // Scale rectangle for bounds setting
+            this.shape.width = newWidth;
+            this.shape.height = newHeight;
             
             // Make new scaled imageIcon from current
             ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(newWidth, newHeight, Image.SCALE_DEFAULT));
             this.label.setIcon(imageIcon);
-            this.label.setBounds((Rectangle) shape);
+            this.label.setBounds(shape);
+            this.label.setBounds(this.shape);
+            this.setBounds(this.shape);
         }
         
         /*
@@ -78,24 +83,15 @@ public class Texture extends JPanel
             int newWidth = (int) (x * aspectRatio * scale);
             int newHeight = (int) (y * scale);
             
+            System.out.println(this.shape);
+            // Scale rectangle for bounds setting
+            this.shape.width = newWidth;
+            this.shape.height = newHeight;
+            System.out.println(this.shape);
+            
             // Make new scaled imageIcon from current
             ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH));
             this.label.setIcon(imageIcon);
-            this.label.setBounds((Rectangle) shape);
-        }
-        
-        // Temporary hack to see hitboxes
-        public void redrawHitbox(Rectangle shape)
-        {
-            this.shape = shape;
-            this.repaint();
-        }
-        
-        @Override
-        public void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g;
-            g2.draw(this.shape);
+            this.label.setBounds(shape);
         }
     }

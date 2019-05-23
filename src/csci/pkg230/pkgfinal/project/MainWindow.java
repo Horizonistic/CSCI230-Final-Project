@@ -1,7 +1,6 @@
 package csci.pkg230.pkgfinal.project;
 
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,13 +10,15 @@ import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
 
 // MainWindow essentially doubles as the game engine
 public class MainWindow extends JFrame implements ActionListener, KeyListener
 {
-    public static int WINDOW_WIDTH = 1280;
-    public static int WINDOW_HEIGHT = 720;
+    public static final int WINDOW_WIDTH = 1280;
+    public static final int WINDOW_HEIGHT = 720;
+    
+    private static final int TOP_OBSTACLE_START = 0;
+    private static final int BOTTOM_OBSTACLE_START = 300;
     
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
@@ -33,6 +34,12 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     public MainWindow()
     {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Setup JFrame before adding entities so we can access things like getHeight() for the background
+        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+        this.setVisible(true);
+        this.setResizable(false);
         
         // Must set layout to null for absolute positioning
         // When using null layouts you MUST use setBounds for it to show up
@@ -54,15 +61,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         // Overlay instructions
         this.setupInstructions();
         
-        // ~60 game ticks per second
         this.timer = new Timer(18, this); // For 60 tick rate updates
         this.timer.setActionCommand(TICK_COMMAND);
-        
-        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.pack();
-        this.setVisible(true);
-        this.setResizable(false);
+        this.repaint();
     }
     
     private void setupPlayer() {
@@ -73,7 +75,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private void setupGround() {
         this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
         this.getContentPane().add(this.ground);
-        System.out.println(this.ground.getLocation());
     }
     
     private void setupBackground() {
@@ -136,13 +137,27 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
             this.timeSinceLastSpawn += dTime;
             if (this.timeSinceLastSpawn > 2000)
             {
-                // Spawn a new obstacle after a set amount of time
+                // Spawn a new top and bottom obstacle after a set amount of time
                 Random random = new Random();
-                Point position = new Point(WINDOW_WIDTH - 1, random.nextInt(100) + 300);
-                Obstacle obstacle = new Obstacle(Entity.Type.OBSTACLE, position);
-                obstacle.revalidate();
-                this.obstacles.add(obstacle);
-                this.getContentPane().add(obstacle);
+                
+                // So we can keep the Y distance between the obstacles the same
+                int randomHeight = random.nextInt(400);
+                System.out.println(randomHeight);
+                
+                // Bottom obstacle
+                Point bottomPosition = new Point(WINDOW_WIDTH - 1, randomHeight + BOTTOM_OBSTACLE_START);
+                System.out.println(bottomPosition);
+                Entity bottomObstacle = new Entity(Entity.Type.OBSTACLE, bottomPosition);
+                this.obstacles.add(bottomObstacle);
+                this.getContentPane().add(bottomObstacle);
+                
+                // Top obstacle
+                Point topPosition = new Point(WINDOW_WIDTH - 1, randomHeight + TOP_OBSTACLE_START - Entity.Dimensions.OBSTACLE_HEIGHT);
+                System.out.println(topPosition);
+                Entity topObstacle = new Entity(Entity.Type.OBSTACLE, topPosition);
+                this.obstacles.add(topObstacle);
+                this.getContentPane().add(topObstacle);
+                
                 this.timeSinceLastSpawn = 0;
             }
             
@@ -177,13 +192,16 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     {
         int keyCode = event.getKeyCode();
         
-        if (keyCode == KeyEvent.VK_SPACE && this.isRunning)
+        if (keyCode == KeyEvent.VK_SPACE)
         {
-            this.player.jump();
-        }
-        else
-        {
-            this.startGame();
+            if (this.isRunning)
+            {
+                this.player.jump();
+            }
+            else
+            {
+                this.startGame();
+            }
         }
     }
 
