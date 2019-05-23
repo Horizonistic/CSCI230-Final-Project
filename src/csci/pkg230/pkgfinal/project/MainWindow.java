@@ -34,6 +34,16 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     
     
     private Game game = new Game();
+
+    // State
+    public enum State {
+        READY,
+        IN_PROGRESS,
+        PAUSED,
+        GAME_OVER
+    };
+
+    private State state = State.READY;
     
 
     public MainWindow() {
@@ -69,6 +79,26 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.pack();
         this.repaint();
+    }
+
+    // State
+    public void moveTo(State newState) {
+        switch (newState) {
+            case State.READY:
+                break;
+                
+            case State.IN_PROGRESS:
+                break;
+                
+            case State.PAUSED:
+                break;
+
+            case State.GAME_OVER:
+                break;
+
+            default:
+                break;
+        }
     }
 
     // Scene Setup
