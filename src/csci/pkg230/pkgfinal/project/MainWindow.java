@@ -63,6 +63,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.setResizable(false);
     }
 
+    
+    // Scene Setup
+    
     private void setupPlayer() {
         this.player = new Character(new Point(100, 0));
         this.getContentPane().add(this.player);
@@ -87,6 +90,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 //        
 //        label.setFont(font);
     }
+    
+    
+    // Event Handlers
+    
+    // Timer Events
 
     @Override
     public void actionPerformed(ActionEvent event) {
@@ -100,6 +108,36 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             update();
         }
     }
+
+    // Key Events
+    
+    // Must implement all key event methods even if we only use one.
+    @Override
+    public void keyPressed(KeyEvent event) {
+        int keyCode = event.getKeyCode();
+
+        if (keyCode == KeyEvent.VK_SPACE) {
+            if (this.isRunning) {
+                this.player.jump();
+
+            } else {
+                this.startGame();
+            }
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent event) {
+        return;
+    }
+
+    @Override
+    public void keyReleased(KeyEvent event) {
+        return;
+    }
+    
+    
+    // Game State
 
     private void startGame() {
         this.timer.start();
@@ -157,29 +195,5 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
         }
     }
-
-    // Must implement all key event methods even if we only use one.
-    @Override
-    public void keyPressed(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-
-        if (keyCode == KeyEvent.VK_SPACE) {
-            if (this.isRunning) {
-                this.player.jump();
-
-            } else {
-                this.startGame();
-            }
-        }
-    }
-
-    @Override
-    public void keyTyped(KeyEvent event) {
-        return;
-    }
-
-    @Override
-    public void keyReleased(KeyEvent event) {
-        return;
-    }
+    
 }
