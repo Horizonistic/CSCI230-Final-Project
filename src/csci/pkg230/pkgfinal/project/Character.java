@@ -39,6 +39,11 @@ public class Character extends Entity
         // Only need to worry about the Y axis, player stays static on the X axis
         this.position.y += (int) (this.velocity.y * dTime);
         
+        if (this.position.y < 0) {
+            this.position.y = 0;
+            this.velocity.y = 0;
+        }
+        
         this.setLocation(this.position);
         
         this.hitbox.setLocation(this.position);

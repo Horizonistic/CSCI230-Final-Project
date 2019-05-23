@@ -199,7 +199,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         for (Entity obstacle : this.obstacles) {
             obstacle.update(dTime);
         }
-//            this.ground.update(dTime);
 
         // Collision detection
         if (this.player.getBounds().intersects(this.ground.getBounds())) {
@@ -213,9 +212,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
             }
         }
 
-        //
-        // Spawning and despawning obstacles            
-        //
+        // Spawning and despawning obstacles         
         this.timeSinceLastSpawn += dTime;
         
         if (this.timeSinceLastSpawn > 2000) {
