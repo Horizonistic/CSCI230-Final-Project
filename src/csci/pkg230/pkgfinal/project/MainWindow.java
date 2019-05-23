@@ -1,68 +1,143 @@
 package csci.pkg230.pkgfinal.project;
 
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
 
 // MainWindow essentially doubles as the game engine
-
-/**
- *
- * @author Infernous
- */
 public class MainWindow extends JFrame implements ActionListener, KeyListener
 {
+    public static int WINDOW_WIDTH = 1280;
+    public static int WINDOW_HEIGHT = 720;
+    
+    private boolean isRunning = false;
+    private int timeSinceLastSpawn = 0;
+    
     private long lastTick;
     private Timer timer;
     private Character player;
+    private Entity ground;
+    private ArrayList<Entity> obstacles = new ArrayList<>();
     
     public MainWindow()
     {
-        // todo: load textures
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Must set layout to null for absolute positioning
+        // When using null layouts you MUST use setBounds for it to show up
+        // https://docs.oracle.com/javase/tutorial/uiswing/layout/none.html
+        this.setLayout(null);
+        
         // todo: load UI
         
         this.addKeyListener(this);
         
         // Initialize player before starting the ticks
-        this.player = new Character(new Point(0, 0));
-        this.add(this.player);
+        this.player = new Character(new Point(100, 0));
+        this.getContentPane().add(this.player);
+        
+        this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
+        this.getContentPane().add(this.ground);
+        System.out.println(this.ground.getLocation());
         
         // ~60 game ticks per second
-        Timer timer = new Timer(18, this); // For 60 tick rate updates
-        timer.setActionCommand("tick");
-        timer.start();
+        this.timer = new Timer(18, this); // For 60 tick rate updates
+        this.timer.setActionCommand("tick");
         
-        this.lastTick = System.nanoTime() / 1000000;
-        
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(1200, 800);
+        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+        this.pack();
+        this.setVisible(true);
     }
 
     @Override
     public void actionPerformed(ActionEvent event)
     {
+        if (!isRunning)
+        {
+            this.timer.stop();
+            return;
+        }
         String command = event.getActionCommand();
         
         if (command.equals("tick"))
         {
+            // Delta time updates
             long currentTime = System.nanoTime() / 1000000;
             int dTime = (int) (currentTime - this.lastTick); // Divide by 1,000,000 to convert to miliseconds
             this.lastTick = currentTime;
             
-            this.player.update(18); // todo: change to dTime that doesn't have a large amount of time passed since program start? (find best place to set lastTick
+            this.player.update(dTime);
+            for (Entity obstacle : this.obstacles)
+            {
+                obstacle.update(dTime);
+            }
+//            this.ground.update(dTime);
             
-//            this.player.revalidate();
-            // todo: keep obstacles stored in ArrayList (that way oldest is always first in array and when removed everything automatically shifts))
-            // todo: generate/remove moving obstacles based on position
-            // todo: check collision detection
+            // Collision detection
+            if (this.player.getBounds().intersects(this.ground.getBounds()))
+            {
+                this.isRunning = false;
+            }
+            if (!this.obstacles.isEmpty())
+            {
+                for (Entity obstacle : this.obstacles)
+                {
+                    if (this.player.getBounds().intersects(obstacle.getBounds()))
+                    {
+                        this.isRunning = false;
+                    }
+                }
+            }
             
-            // Update for next tick
-            // Doing it like this for now because physics starts from the very second the program is opened using System.nanoTime()
+            //
+            // Spawning and despawning obstacles            
+            //
+            this.timeSinceLastSpawn += dTime;
+            if (this.timeSinceLastSpawn > 2000)
+            {
+                // Spawn a new obstacle after a set amount of time
+                Random random = new Random();
+                Point position = new Point(WINDOW_WIDTH - 1, random.nextInt(100) + 300);
+                Obstacle obstacle = new Obstacle(Entity.Type.OBSTACLE, position);
+                obstacle.revalidate();
+                this.obstacles.add(obstacle);
+                this.getContentPane().add(obstacle);
+                this.timeSinceLastSpawn = 0;
+            }
+            
+            if (!this.obstacles.isEmpty())
+            {
+                // Detect if any obstacles are no longer visible and remove them if they are
+                ArrayList<Entity> toRemove = new ArrayList<>();
+                for (Entity obstacle : this.obstacles)
+                {
+                    if (!obstacle.getBounds().intersects(this.getContentPane().getBounds()))
+                    {
+                        toRemove.add(obstacle);
+                    }
+                }
+                this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
+            }
+            
+            
         }
+    }
+    
+    private void startGame()
+    {
+        this.timer.start();
+        this.isRunning = true;
+        this.lastTick = System.nanoTime() / 1000000;
     }
     
     // Must implement all key event methods even if we only use one.
@@ -71,10 +146,13 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     {
         int keyCode = event.getKeyCode();
         
-        if (keyCode == KeyEvent.VK_SPACE)
+        if (keyCode == KeyEvent.VK_SPACE && this.isRunning)
         {
             this.player.jump();
-        System.out.println("Jump");
+        }
+        else
+        {
+            this.startGame();
         }
     }
 

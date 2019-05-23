@@ -8,6 +8,7 @@ package csci.pkg230.pkgfinal.project;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -19,11 +20,12 @@ public class Texture extends JPanel
     {
         private JLabel label = new JLabel();
         private Image image;
-        private Shape shape;
+        private Rectangle shape;
     
         public Texture(String imageURI, Shape shape)
         {
-            this.shape = shape;
+            this.setLayout(null);
+            this.shape = new Rectangle(0, 0, ((Rectangle) shape).width, ((Rectangle) shape).height);
             try {
 //                this.image = ImageIO.read(new URL(imageURI)); // For getting from URLs
                 this.image = ImageIO.read(getClass().getResource(imageURI)); // For local files
@@ -31,6 +33,8 @@ public class Texture extends JPanel
                 ImageIcon imageIcon = new ImageIcon(image);
                 this.label.setIcon(imageIcon);
                 this.add(label);
+                this.label.setBounds(this.shape);
+                this.setBounds(this.shape);
             }
             catch (IOException e)
             {
@@ -54,7 +58,8 @@ public class Texture extends JPanel
             
             // Make new scaled imageIcon from current
             ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(newWidth, newHeight, Image.SCALE_DEFAULT));
-            label.setIcon(imageIcon);
+            this.label.setIcon(imageIcon);
+            this.label.setBounds((Rectangle) shape);
         }
         
         /*
@@ -75,11 +80,12 @@ public class Texture extends JPanel
             
             // Make new scaled imageIcon from current
             ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH));
-            label.setIcon(imageIcon);
+            this.label.setIcon(imageIcon);
+            this.label.setBounds((Rectangle) shape);
         }
         
         // Temporary hack to see hitboxes
-        public void redrawHitbox(Shape shape)
+        public void redrawHitbox(Rectangle shape)
         {
             this.shape = shape;
             this.repaint();
@@ -89,9 +95,7 @@ public class Texture extends JPanel
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
-            
             Graphics2D g2 = (Graphics2D) g;
             g2.draw(this.shape);
         }
-        //
     }

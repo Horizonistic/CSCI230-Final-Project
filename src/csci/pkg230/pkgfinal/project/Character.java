@@ -6,7 +6,8 @@ import java.awt.geom.Point2D;
 public class Character extends Entity
 {
     protected final float MAX_Y_VELOCITY = 5.0f;
-    protected final float GRAVITY = 0.003f; // Accelerate downwards at 0.1 pixels/tick (6 pixels/second)
+    protected final float GRAVITY = 0.002f; // Accelerate downwards at 0.1 pixels/tick (6 pixels/second)
+    protected final float JUMP_STRENGTH = 0.9f;
     
     // Point is used as a 2D vector so I don't have to recreate one
     protected Point2D.Float velocity;
@@ -40,7 +41,6 @@ public class Character extends Entity
         
         this.setLocation(this.position);
         
-        System.out.println(this.position);
         this.hitbox.setLocation(this.position);
     }
     
@@ -48,6 +48,6 @@ public class Character extends Entity
     public void jump()
     {
         // Negative for up
-        this.velocity.y = -1.0f;
+        this.velocity.y = -JUMP_STRENGTH;
     }
 }

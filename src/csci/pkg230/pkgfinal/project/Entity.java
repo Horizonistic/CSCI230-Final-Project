@@ -10,11 +10,12 @@ import javax.swing.JPanel;
 public class Entity extends JPanel
 {
     protected final float MAX_X_VELOCITY = 10.0f;
+    protected final int OBSTACLE_MOVEMENT_VELOCITY = 4;
     
     // Subject to change
     public enum Type {
         PLAYER,
-        PIPE,
+        OBSTACLE,
         GROUND,
         BACKGROUND
     };
@@ -27,11 +28,15 @@ public class Entity extends JPanel
     // For this project we won't ever need a texture-less entity
     public Entity(Type type, Point position)
     {
-        this.loadTextureFromType(type);
-        this.loadHitboxFromType(type);
+        this.setLayout(null);
         
         this.position = position;
         this.type = type;
+        
+        this.loadTextureFromType(type);
+        this.loadHitboxFromType(type);
+        
+        this.setBounds(this.hitbox);
     }
     
     // For such a small project let's just hard-code the image locations into the code
@@ -41,14 +46,18 @@ public class Entity extends JPanel
         switch (type)
         {
             case PLAYER:
-                this.texture = new Texture("images/horse.png", new Rectangle(0, 0, 200, 200));
+                this.texture = new Texture("images/player.png", new Rectangle(this.position.x, this.position.y, 200, 200));
                 this.add(this.texture);
                 break;
             
-            case PIPE:
+            case OBSTACLE:
+                this.texture = new Texture("images/obstacle.png", new Rectangle(this.position.x, this.position.y, 100, Math.abs(this.position.y - MainWindow.WINDOW_HEIGHT)));
+                this.add(this.texture);
                 break;
                 
             case GROUND:
+                this.texture = new Texture("images/ground_temp.png", new Rectangle(this.position.x, this.position.y, MainWindow.WINDOW_WIDTH, 50));
+                this.add(this.texture);
                 break;
             
             case BACKGROUND:
@@ -57,19 +66,22 @@ public class Entity extends JPanel
     }
     
     // Let's also do the same for the hitboxes
+    // Values are hard-coded for sake of laziness
     private void loadHitboxFromType(Type type)
     {
         // todo: add appropriate shape for each type's htibox
         switch (type)
         {
             case PLAYER:
-                this.hitbox = new Rectangle(0, 0, 200, 200);
+                this.hitbox = new Rectangle(this.position.x, this.position.y, 200, 200);
                 break;
             
-            case PIPE:
+            case OBSTACLE:
+                this.hitbox = new Rectangle(this.position.x, this.position.y, 100, Math.abs(this.position.y - MainWindow.WINDOW_HEIGHT));
                 break;
                 
             case GROUND:
+                this.hitbox = new Rectangle(this.position.x, this.position.y, MainWindow.WINDOW_WIDTH, 50);
                 break;
             
             case BACKGROUND:
@@ -79,10 +91,26 @@ public class Entity extends JPanel
     
     public void update(int dTime)
     {
-        this.texture.revalidate(); // Tells AWT to redraw the JPanel
-        this.texture.redrawHitbox(this.hitbox); // Redraws the hitbox
+        this.revalidate(); // Tells AWT to redraw the JPanel
+//        this.texture.redrawHitbox(this.hitbox); // Redraws the hitbox
         
         // todo: check type and update position accordingly
+        switch (type)
+        {
+            case PLAYER:
+                break;
+            
+            case OBSTACLE:
+                this.position.x -= OBSTACLE_MOVEMENT_VELOCITY;
+                this.setLocation(this.position);
+                break;
+                
+            case GROUND:
+                break;
+            
+            case BACKGROUND:
+                break;
+        }
     }
     
     public Texture getTexture()
