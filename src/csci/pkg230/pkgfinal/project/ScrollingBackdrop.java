@@ -28,13 +28,14 @@ public class ScrollingBackdrop extends JPanel {
     double position = 0;
 
     // Constructor
-    ScrollingBackdrop(int width, int height) {
+    ScrollingBackdrop(int width, int height, Color backgroundColor, Color foregroundColor) {
         System.out.println("Creating backdrop of width:" + width + " and height:" + height + ".");
 
         this.width = width;
         this.height = height;
         
-        repaint();
+        this.backgroundColor = backgroundColor;
+        this.foregroundColor = foregroundColor;
     }
     
     @Override

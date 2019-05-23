@@ -1,5 +1,6 @@
 package csci.pkg230.pkgfinal.project;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -45,20 +46,18 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         // https://docs.oracle.com/javase/tutorial/uiswing/layout/none.html
         this.setLayout(null);
 
-        // todo: load UI
         this.addKeyListener(this);
 
-        // Background behind everything else
-        this.setupBackground();
-
-        // Initialize player before starting the ticks
-        this.setupPlayer();
-
+        // Setup scene
+        this.setupBackground(); // Add background first and add everything else on top
+        this.setupPlayer(); // Initialize player before starting the ticks
         this.setupGround();
+        this.setupInstructions(); // Overlay instructions
 
         // Overlay instructions
         this.setupInstructions();
         
+        // ~60 game ticks per second
         this.timer = new Timer(18, this); // For 60 tick rate updates
         this.timer.setActionCommand(TICK_COMMAND);
 
@@ -68,11 +67,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.repaint();
     }
 
-    
     // Scene Setup
-    
     private void setupPlayer() {
-        this.player = new Character(new Point(100, 0));
+        Point startPoint = new Point(100, 0);
+        
+        this.player = new Character(startPoint);
         this.getContentPane().add(this.player);
     }
 
@@ -82,7 +81,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     }
 
     private void setupBackground() {
-        ScrollingBackdrop backdrop = new ScrollingBackdrop(this.getWidth(), this.getHeight());
+        ScrollingBackdrop backdrop = new ScrollingBackdrop(this.getWidth(), this.getHeight(), new Color(242, 255, 253), new Color(125, 198, 224));
 
         add(backdrop);
     }
@@ -94,12 +93,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
 //        
 //        label.setFont(font);
     }
-    
-    
-    // Event Handlers
-    
-    // Timer Events
 
+    // Event Handlers
+    // Timer Events
     @Override
     public void actionPerformed(ActionEvent event) {
         if (!isRunning) {
@@ -114,7 +110,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     }
 
     // Key Events
-    
     // Must implement all key event methods even if we only use one.
     @Override
     public void keyPressed(KeyEvent event) {
@@ -139,10 +134,8 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     public void keyReleased(KeyEvent event) {
         return;
     }
-    
-    
-    // Game State
 
+    // Game State
     private void startGame() {
         this.timer.start();
         this.isRunning = true;
