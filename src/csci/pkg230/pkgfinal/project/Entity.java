@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 // Responsible for a graphical asset and its associated hitbox.
 public class Entity extends JPanel
 {
-    protected final int OBSTACLE_MOVEMENT_VELOCITY = 4;
+    protected final int OBSTACLE_MOVEMENT_VELOCITY = 6;
     
     public class Dimensions
     {

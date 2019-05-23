@@ -2,6 +2,7 @@ package csci.pkg230.pkgfinal.project;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +11,8 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 // MainWindow essentially doubles as the game engine
@@ -29,6 +32,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private Character player;
     private Entity ground;
     private ArrayList<Entity> obstacles = new ArrayList<>();
+    private JLabel scoreDisplay;
 
     private static final String TICK_COMMAND = "tick";
     
@@ -67,7 +71,8 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.setupPlayer(); // Initialize player before starting the ticks
         this.setupGround();
         this.setupInstructions(); // Overlay instructions
-
+        this.setupScore();
+        
         // Overlay instructions
         this.setupInstructions();
         
@@ -84,16 +89,16 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     // State
     public void moveTo(State newState) {
         switch (newState) {
-            case State.READY:
+            case READY:
                 break;
                 
-            case State.IN_PROGRESS:
+            case IN_PROGRESS:
                 break;
                 
-            case State.PAUSED:
+            case PAUSED:
                 break;
 
-            case State.GAME_OVER:
+            case GAME_OVER:
                 break;
 
             default:
@@ -126,6 +131,14 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
 //        Font font = new Font("Menlo", 120);
 //        
 //        label.setFont(font);
+    }
+
+    private void setupScore()
+    {
+        this.scoreDisplay = new JLabel("0", SwingConstants.RIGHT);
+        this.scoreDisplay.setFont(new Font("Helvetica", Font.BOLD, 64));
+        this.scoreDisplay.setBounds(WINDOW_WIDTH - 125, 0, 100, 100);
+        this.getContentPane().add(this.scoreDisplay);
     }
 
     // Event Handlers
@@ -211,18 +224,15 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
 
             // So we can keep the Y distance between the obstacles the same
             int randomHeight = random.nextInt(400);
-            System.out.println(randomHeight);
 
             // Bottom obstacle
             Point bottomPosition = new Point(WINDOW_WIDTH - 1, randomHeight + BOTTOM_OBSTACLE_START);
-            System.out.println(bottomPosition);
             Entity bottomObstacle = new Entity(Entity.Type.OBSTACLE, bottomPosition);
             this.obstacles.add(bottomObstacle);
             this.getContentPane().add(bottomObstacle);
 
             // Top obstacle
             Point topPosition = new Point(WINDOW_WIDTH - 1, randomHeight + TOP_OBSTACLE_START - Entity.Dimensions.OBSTACLE_HEIGHT);
-            System.out.println(topPosition);
             Entity topObstacle = new Entity(Entity.Type.OBSTACLE, topPosition);
             this.obstacles.add(topObstacle);
             this.getContentPane().add(topObstacle);
@@ -238,7 +248,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
                     toRemove.add(obstacle);
                 }
             }
-            this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
+            if (!toRemove.isEmpty()) {
+                this.game.addPoint();
+                this.scoreDisplay.setText(String.valueOf(this.game.getScore()));
+                this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
+            }
         }
     }
 }

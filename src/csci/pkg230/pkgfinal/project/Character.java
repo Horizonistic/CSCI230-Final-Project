@@ -7,7 +7,7 @@ public class Character extends Entity
 {
     protected final float MAX_Y_VELOCITY = 5.0f;
     protected final float GRAVITY = 0.002f; // Accelerate downwards at 0.1 pixels/tick (6 pixels/second)
-    protected final float JUMP_STRENGTH = 0.9f;
+    protected final float JUMP_STRENGTH = 0.7f;
     
     // Point is used as a 2D vector so I don't have to recreate one
     protected Point2D.Float velocity;
