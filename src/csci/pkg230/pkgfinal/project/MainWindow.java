@@ -228,7 +228,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     }
     
     private void reset() {
-        this.removeAll();
+        this.getContentPane().removeAll();
         this.setupScene();
         this.timer.restart();
         this.moveTo(State.READY);
