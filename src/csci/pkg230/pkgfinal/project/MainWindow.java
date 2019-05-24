@@ -16,14 +16,14 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 // MainWindow essentially doubles as the game engine
-public class MainWindow extends JFrame implements ActionListener, KeyListener
-{
+public class MainWindow extends JFrame implements ActionListener, KeyListener {
+
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
-    
+
     private static final int TOP_OBSTACLE_START = 0;
     private static final int BOTTOM_OBSTACLE_START = 300;
-    
+
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
 
@@ -35,8 +35,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private JLabel scoreDisplay;
 
     private static final String TICK_COMMAND = "tick";
-    
-    
+
+    private OverlayPanel overlayPanel;
+
     private Game game = new Game();
 
     // State
@@ -47,18 +48,17 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         GAME_OVER
     };
 
-    private State state = State.READY;
-    
+    private State state;
 
     public MainWindow() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         // Setup JFrame before adding entities so we can access things like getHeight() for the background
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.setVisible(true);
         this.setResizable(false);
-        
+
         // Must set layout to null for absolute positioning
         // When using null layouts you MUST use setBounds for it to show up
         // https://docs.oracle.com/javase/tutorial/uiswing/layout/none.html
@@ -67,15 +67,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
         this.addKeyListener(this);
 
         // Setup scene
-        this.setupBackground(); // Add background first and add everything else on top
-        this.setupPlayer(); // Initialize player before starting the ticks
-        this.setupGround();
-        this.setupInstructions(); // Overlay instructions
-        this.setupScore();
-        
-        // Overlay instructions
-        this.setupInstructions();
-        
+        this.setupScene();
+
+        this.moveTo(State.READY);
+
         // ~60 game ticks per second
         this.timer = new Timer(18, this); // For 60 tick rate updates
         this.timer.setActionCommand(TICK_COMMAND);
@@ -88,28 +83,69 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
 
     // State
     public void moveTo(State newState) {
-        switch (newState) {
+        if (state == newState) {
+            return;
+        }
+        
+        switch (state) {
             case READY:
+                this.hideInstructionOverlay();
                 break;
-                
+
             case IN_PROGRESS:
                 break;
-                
+
             case PAUSED:
+                this.hidePauseOverlay();
+
                 break;
 
             case GAME_OVER:
+                this.hideEndOverlay();
+
                 break;
 
             default:
-                break;
+                throw new UnsupportedOperationException("Invalid state change. Current state: " + state + " New state: " + newState);
         }
+        
+        switch (newState) {
+            case READY:
+                // Overlay instructions
+                this.showInstructionOverlay();
+
+                break;
+
+            case IN_PROGRESS:
+                break;
+
+            case PAUSED:
+                this.showPauseOverlay();
+
+                break;
+
+            case GAME_OVER:
+                this.showEndOverlay();
+
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Invalid state change. Current state: " + state + " New state: " + newState);
+        }
+
+        state = newState;
     }
 
     // Scene Setup
+    private void setupScene() {
+        this.setupBackground(); // Add background first and add everything else on top
+        this.setupPlayer(); // Initialize player before starting the ticks
+        this.setupGround();
+    }
+
     private void setupPlayer() {
         Point startPoint = new Point(100, 0);
-        
+
         this.player = new Character(startPoint);
         this.getContentPane().add(this.player);
     }
@@ -122,23 +158,50 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
     private void setupBackground() {
         ScrollingBackdrop backdrop = new ScrollingBackdrop(this.getWidth(), this.getHeight(), new Color(242, 255, 253), new Color(125, 198, 224));
 
-        add(backdrop);
+        this.getContentPane().add(backdrop);
+    }
+    
+    
+    // Overlays
+
+    private void showInstructionOverlay() {
+        overlayPanel = new OverlayPanel("Press SPACE to begin…");
+
+        this.getContentPane().add(overlayPanel);
     }
 
-    private void setupInstructions() {
-//        JLabel label = new JLabel("Press SPACE to begin…");
-//        
-//        Font font = new Font("Menlo", 120);
-//        
-//        label.setFont(font);
+    private void hideInstructionOverlay() {
+        this.getContentPane().remove(overlayPanel);
     }
 
-    private void setupScore()
-    {
-        this.scoreDisplay = new JLabel("0", SwingConstants.RIGHT);
-        this.scoreDisplay.setFont(new Font("Helvetica", Font.BOLD, 64));
-        this.scoreDisplay.setBounds(WINDOW_WIDTH - 125, 0, 100, 100);
-        this.getContentPane().add(this.scoreDisplay);
+    private void showHUDOverlay() {
+        overlayPanel = new OverlayPanel("Score: -");
+
+        this.getContentPane().add(overlayPanel);
+    }
+
+    private void hideHUDOverlay() {
+        this.getContentPane().remove(overlayPanel);
+    }
+
+    private void showPauseOverlay() {
+        overlayPanel = new OverlayPanel("PAUSED");
+
+        this.getContentPane().add(overlayPanel);
+    }
+
+    private void hidePauseOverlay() {
+        this.getContentPane().remove(overlayPanel);
+    }
+
+    private void showEndOverlay() {
+        overlayPanel = new OverlayPanel("GAME OVER");
+
+        this.getContentPane().add(overlayPanel);
+    }
+
+    private void hideEndOverlay() {
+        this.getContentPane().remove(overlayPanel);
     }
 
     // Event Handlers
@@ -214,7 +277,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener
 
         // Spawning and despawning obstacles         
         this.timeSinceLastSpawn += dTime;
-        
+
         if (this.timeSinceLastSpawn > 2000) {
             // Spawn a new top and bottom obstacle after a set amount of time
             Random random = new Random();
