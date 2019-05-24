@@ -109,6 +109,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         switch (newState) {
             case READY:
+                this.isRunning = false;
                 break;
                 
             case IN_PROGRESS:
@@ -262,10 +263,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     */
     private void reset() {
         // todo: remove all obstacles from this.obstacles
+        this.obstacles.clear();
         this.getContentPane().removeAll();
         this.setupScene();
         this.game.resetScore();
-        this.timer.restart();
+//        this.timer.restart();
         this.moveTo(State.READY);
     }
 
