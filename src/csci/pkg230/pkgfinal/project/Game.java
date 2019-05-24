@@ -1,6 +1,8 @@
 package csci.pkg230.pkgfinal.project;
 
-// Represents game scoring and mechanics.
+/*
+    Represents game scoring
+*/
 public class Game {
 
     // Current score.

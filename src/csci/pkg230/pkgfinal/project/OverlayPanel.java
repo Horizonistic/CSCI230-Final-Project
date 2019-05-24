@@ -1,28 +1,22 @@
 package csci.pkg230.pkgfinal.project;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-// Shows overlay with a string.
+/*
+    Shows overlay with a JLabel
+*/
 public class OverlayPanel extends JPanel {
 
-    // Graphics2D graphics;
-    
-    private String text;
-    
     private Rectangle bounds;
     
     private JLabel label;
     
     
     public OverlayPanel(String text, Font font, Rectangle bounds) {
-        this.text = text;
         this.bounds = bounds;
         
         this.setBounds(bounds);
@@ -43,7 +37,6 @@ public class OverlayPanel extends JPanel {
     }
     
     public void updateText(String text) {
-        this.text = text;
         
         label.setText(text);
         validate();
@@ -51,12 +44,10 @@ public class OverlayPanel extends JPanel {
     
     public void toggleOverlay() {
         if (this.isVisible()) {
-            System.out.println("Hiding");
             this.setVisible(false);
         }
         else
         {
-            System.out.println("Showing");
             this.setVisible(true);
         }
     }

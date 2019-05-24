@@ -4,9 +4,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.JPanel;
 
-// todo: implement abstract interface for hitboxes?
-
-// Responsible for a graphical asset and its associated hitbox.
+/*
+    Responsible for a sprite and its associated hitbox and render lcoation
+*/
 public class Entity extends JPanel
 {
     protected final int OBSTACLE_MOVEMENT_VELOCITY = 6;
@@ -23,6 +23,7 @@ public class Entity extends JPanel
         public static final int GROUND_HEIGHT = 50;
     }
     
+    // todo: remove background?  if we don't use an image for it
     public enum Type {
         PLAYER,
         OBSTACLE,
@@ -31,8 +32,8 @@ public class Entity extends JPanel
     };
     
     protected Type type;
-    protected Texture texture;
-    protected Rectangle hitbox; // Rectangle for now for ease of use, probably forever
+    protected Sprite texture;
+    protected Rectangle hitbox;
     public Point position; // Public to avoid getters/settings for hitbox
     
     // For this project we won't ever need a texture-less entity
@@ -49,24 +50,26 @@ public class Entity extends JPanel
         this.setBounds(this.hitbox);
     }
     
-    // For such a small project let's just hard-code the image locations into the code
+    /*
+        Loads a sprite based on the Entity type
+    */
     private void loadTextureFromType(Type type)
     {
-        // todo: add textures to load
+        // For such a small project let's just hard-code the image locations into the code
         switch (type)
         {
             case PLAYER:
-                this.texture = new Texture("images/player.png", new Rectangle(this.position.x, this.position.y, Dimensions.PLAYER_WIDTH, Dimensions.PLAYER_HEIGHT));
+                this.texture = new Sprite("images/player.png", new Rectangle(this.position.x, this.position.y, Dimensions.PLAYER_WIDTH, Dimensions.PLAYER_HEIGHT));
                 this.add(this.texture);
                 break;
             
             case OBSTACLE:
-                this.texture = new Texture("images/obstacle.png", new Rectangle(this.position.x, this.position.y, Dimensions.OBSTACLE_WIDTH, Dimensions.OBSTACLE_HEIGHT));
+                this.texture = new Sprite("images/obstacle.png", new Rectangle(this.position.x, this.position.y, Dimensions.OBSTACLE_WIDTH, Dimensions.OBSTACLE_HEIGHT));
                 this.add(this.texture);
                 break;
                 
             case GROUND:
-                this.texture = new Texture("images/ground_temp.png", new Rectangle(this.position.x, this.position.y, Dimensions.GROUND_WIDTH, Dimensions.GROUND_HEIGHT));
+                this.texture = new Sprite("images/ground_temp.png", new Rectangle(this.position.x, this.position.y, Dimensions.GROUND_WIDTH, Dimensions.GROUND_HEIGHT));
                 this.add(this.texture);
                 break;
             
@@ -75,6 +78,9 @@ public class Entity extends JPanel
         }
     }
     
+    /*
+        Creates a rectangle based on the Entity type to use as the hitbox
+    */
     private void loadHitboxFromType(Type type)
     {
         switch (type)
@@ -96,12 +102,13 @@ public class Entity extends JPanel
         }
     }
     
+    /*
+        Updates Entity location based on delta time and Entity type
+    */
     public void update(int dTime)
     {
         this.revalidate(); // Tells AWT to redraw the JPanel
-//        this.texture.redrawHitbox(this.hitbox); // Redraws the hitbox
         
-        // todo: check type and update position accordingly
         switch (type)
         {
             case PLAYER:
@@ -117,11 +124,9 @@ public class Entity extends JPanel
             
             case BACKGROUND:
                 break;
+                
+            default:
+                break;
         }
-    }
-    
-    public Texture getTexture()
-    {
-        return this.texture;
     }
 }
