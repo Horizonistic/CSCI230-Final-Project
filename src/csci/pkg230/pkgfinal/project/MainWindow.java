@@ -22,14 +22,13 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     private static final int TOP_OBSTACLE_START = 0;
     private static final int BOTTOM_OBSTACLE_START = 300; // This is also the distance between a set of top and bottom obstacles
-    
+
     private static final int TIME_BETWEEN_OBSTACLES = 2000; // Frequency of obstacle appearance
     private static final int OBSTACLE_HEIGHT_VARIANCE = 400; // The deviance of the opening of the obstacles
-    
-    private static final String INSTRUCTIONS_TEXT = "Press SPACE to begin…";
-    private static final String SCORE_TEXT = "Score: 0";
-    private static final String PAUSED_TEXT = "PAUSED";
-    private static final String GAME_OVER_TEXT = "GAME OVER<br>Press SPACE to try again.";
+
+    private static final String INSTRUCTIONS_HTML = "<html><h1>Press SPACE to begin…</h1></html>";
+    private static final String SCORE_TEXT = "<html><h1 style=\"text-shadow: 2px 2px 5px gray;\">Score: %d</h1></html>";
+    private static final String PAUSED_HTML = "<html><h1>PAUSED</h1><h4>(Press SPACE to continue.)</h4></html>";
 
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
@@ -80,10 +79,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.pack();
         this.repaint();
     }
-    
+
     /*
         Initializes timer
-    */
+     */
     private void setupTimer() {
         // ~60 game ticks per second
         this.timer = new Timer(18, this); // For 60 tick rate updates
@@ -91,10 +90,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     }
 
     // States
-    
     /*
         Switches game state and updates UI accordingly
-    */
+     */
     public void moveTo(State newState) {
         if (newState == State.NONE || state == newState) {
             return;
@@ -115,7 +113,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             case READY:
                 this.isRunning = false;
                 break;
-                
+
             case IN_PROGRESS:
                 this.isRunning = true;
 
@@ -128,8 +126,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
             case GAME_OVER:
                 this.isRunning = false;
-                System.out.println(this.overlays.get(newState).isVisible());
-                this.overlays.get(State.GAME_OVER).updateText("<html><center>" + GAME_OVER_TEXT + "<br>Final Score: " + String.valueOf(this.game.getScore()) + "</center></html>");
+                this.overlays.get(State.GAME_OVER).updateText(gameOverText(this.game.getScore()));
 
                 break;
 
@@ -139,10 +136,22 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         state = newState;
     }
+    
+    private String gameOverText(int score) {
+        String color = "rgb(66, 244, 113)";
+        
+        String string = "<html><center><h1 style=\"font-size: 1.5em;\">GAME OVER</h1>" + 
+                "<h2 style=\"font-size:1.2em;\">Final Score: <span style=\"color:%s; text-shadow: 2px 2px 5px gray;\">%d</span>" + 
+                "</h2><h4>Press SPACE to try again.</h4></center></html>";
+        
+        System.out.println(String.format(string, color, score));
+        
+        return String.format(string, color, score);
+    }
 
     /*
         Initializes all entities and UI elements
-    */
+     */
     private void setupScene() {
         this.setupBackground(); // Add background first and add everything else on top
         this.setupPlayer(); // Initialize player before starting the ticks
@@ -152,7 +161,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     /*
         Initializes the player entity
-    */
+     */
     private void setupPlayer() {
         Point startPoint = new Point(100, 0);
 
@@ -162,7 +171,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     /*
         Initializes the ground entity
-    */
+     */
     private void setupGround() {
         this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
         this.getContentPane().add(this.ground);
@@ -170,7 +179,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     /*
         Initializes the background
-    */
+     */
     private void setupBackground() {
         ScrollingBackdrop backdrop = new ScrollingBackdrop(this.getWidth(), this.getHeight(), new Color(242, 255, 253), new Color(125, 198, 224));
 
@@ -178,18 +187,17 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     }
 
     // Overlays
-    
     /*
         Initializes the UI overlays and stores them in a HashMap
-    */
+     */
     private void setupOverlays() {
-        this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_TEXT, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
+        this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.READY));
 
-        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(SCORE_TEXT, GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
+        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(String.format(SCORE_TEXT, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
         this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
 
-        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_TEXT, GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
         this.getContentPane().add(this.overlays.get(State.PAUSED));
 
         // Text for this is blank so we can add the score to is later
@@ -202,10 +210,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     }
 
     // Event handlers
-    
     /*
         Timer events
-    */
+     */
     @Override
     public void actionPerformed(ActionEvent event) {
         if (!isRunning) {
@@ -220,7 +227,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     }
 
     // Key Events
-    
     // Must implement all key event methods even if we only use one.
     @Override
     public void keyPressed(KeyEvent event) {
@@ -231,7 +237,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 case IN_PROGRESS:
                     this.player.jump();
                     break;
-                    
+
                 case READY:
                     this.startGame();
                     break;
@@ -239,7 +245,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 case PAUSED:
                     this.startGame();
                     break;
-                    
+
                 case GAME_OVER:
                     this.reset();
                     break;
@@ -247,6 +253,14 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                 default:
                     break;
             }
+        } else if (keyCode == KeyEvent.VK_P) { // Pause
+            this.moveTo(State.PAUSED);
+
+        } else if (keyCode == KeyEvent.VK_Q) { // Quit
+            quitGame();
+
+        } else {
+            System.out.println(keyCode);
         }
     }
 
@@ -268,10 +282,16 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.lastTick = System.nanoTime() / 1000000;
         this.moveTo(State.IN_PROGRESS);
     }
-    
+
+    private void quitGame() {
+        // Show alert
+
+        System.exit(0);
+    }
+
     /*
         Removes all obstacles and resets player back to the starting position
-    */
+     */
     private void reset() {
         this.obstacles.clear();
         this.getContentPane().removeAll();
@@ -283,7 +303,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     /*
         Processes game physics and collision detection, as well as obstacle spawning and despawning
-    */
+     */
     private void update() {
         // Delta time updates            
         long currentTime = System.nanoTime() / 1000000;
@@ -299,6 +319,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         // Collision detection
         if (this.player.getBounds().intersects(this.ground.getBounds())) {
             this.moveTo(State.GAME_OVER);
+
             return; // No longer need to check obstacles
         }
         if (!this.obstacles.isEmpty()) {
@@ -346,7 +367,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             // If there is an obstacle to remove then remove it and update the score
             if (!toRemove.isEmpty()) {
                 this.game.addPoint();
-                this.overlays.get(State.IN_PROGRESS).updateText("Score: " + String.valueOf(this.game.getScore()));
+                this.overlays.get(State.IN_PROGRESS).updateText(String.format(SCORE_TEXT, game.getScore()));
                 this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
             }
         }
