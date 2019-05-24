@@ -103,8 +103,12 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         if (state == State.NONE) {
             this.overlays.get(newState).toggleOverlay();
         } else {
+            System.out.println("Current before: " + this.state + " " + this.overlays.get(this.state).isVisible());
+            System.out.println("New before: " + newState + " " + this.overlays.get(newState).isVisible());
             this.overlays.get(this.state).toggleOverlay();
             this.overlays.get(newState).toggleOverlay();
+            System.out.println("Current after: " + this.state + " " + this.overlays.get(this.state).isVisible());
+            System.out.println("New after: " + newState + " " + this.overlays.get(newState).isVisible());
         }
 
         switch (newState) {
@@ -124,6 +128,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
             case GAME_OVER:
                 this.isRunning = false;
+                System.out.println(this.overlays.get(newState).isVisible());
                 this.overlays.get(State.GAME_OVER).updateText("<html><center>" + GAME_OVER_TEXT + "<br>Final Score: " + String.valueOf(this.game.getScore()) + "</center></html>");
 
                 break;
@@ -190,6 +195,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         // Text for this is blank so we can add the score to is later
         this.overlays.put(State.GAME_OVER, new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.GAME_OVER));
+        
+        if (this.state != State.NONE) {
+            this.overlays.get(this.state).toggleOverlay();
+        }
     }
 
     // Event handlers
@@ -253,7 +262,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     // Game State
     private void startGame() {
-        this.timer.start();
+        if (!this.timer.isRunning()) {
+            this.timer.start();
+        }
         this.lastTick = System.nanoTime() / 1000000;
         this.moveTo(State.IN_PROGRESS);
     }
@@ -262,7 +273,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Removes all obstacles and resets player back to the starting position
     */
     private void reset() {
-        // todo: remove all obstacles from this.obstacles
         this.obstacles.clear();
         this.getContentPane().removeAll();
         this.setupScene();
