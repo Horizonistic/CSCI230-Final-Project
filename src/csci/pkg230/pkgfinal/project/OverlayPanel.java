@@ -37,7 +37,6 @@ public class OverlayPanel extends JPanel {
     }
     
     public void updateText(String text) {
-        
         label.setText(text);
         validate();
     }
