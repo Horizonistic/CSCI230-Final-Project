@@ -25,6 +25,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     private static final int TOP_OBSTACLE_START = 0;
     private static final int BOTTOM_OBSTACLE_START = 300;
+    
+    private static final String INSTRUCTIONS_TEXT = "Press SPACE to begin…";
+    private static final String SCORE_TEXT = "Score: 0";
+    private static final String PAUSED_TEXT = "PAUSED";
+    private static final String GAME_OVER_TEXT = "GAME OVER<br>Press SPACE to try again.";
 
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
@@ -115,6 +120,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
             case GAME_OVER:
                 this.isRunning = false;
+                this.overlays.get(State.GAME_OVER).updateText("<html><center>" + GAME_OVER_TEXT + "<br>Final Score: " + String.valueOf(this.game.getScore()) + "</center></html>");
 
                 break;
 
@@ -153,16 +159,16 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     // Overlays
     private void setupOverlays() {
-        this.overlays.put(State.READY, new OverlayPanel("Press SPACE to begin…", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
+        this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_TEXT, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.READY));
 
-        this.overlays.put(State.IN_PROGRESS, new OverlayPanel("Score: -", GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(SCORE_TEXT, GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
         this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
 
-        this.overlays.put(State.PAUSED, new OverlayPanel("PAUSED", GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_TEXT, GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
         this.getContentPane().add(this.overlays.get(State.PAUSED));
 
-        this.overlays.put(State.GAME_OVER, new OverlayPanel("GAME OVER\nPress SPACE to try again.", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
+        this.overlays.put(State.GAME_OVER, new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.GAME_OVER));
     }
 
@@ -191,18 +197,19 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             switch (state) {
                 case IN_PROGRESS:
                     this.player.jump();
-
                     break;
+                    
                 case READY:
                     this.startGame();
-
                     break;
 
                 case PAUSED:
                     this.startGame();
+                    break;
                     
                 case GAME_OVER:
                     this.reset();
+                    break;
 
                 default:
                     break;
@@ -230,6 +237,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private void reset() {
         this.getContentPane().removeAll();
         this.setupScene();
+        this.game.resetScore();
         this.timer.restart();
         this.moveTo(State.READY);
     }
@@ -257,7 +265,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             }
         }
 
-        // Spawning and despawning obstacles         
+        // Spawning and despawning obstacles
         this.timeSinceLastSpawn += dTime;
 
         if (this.timeSinceLastSpawn > 2000) {
@@ -292,7 +300,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             }
             if (!toRemove.isEmpty()) {
                 this.game.addPoint();
-//                this.scoreDisplay.setText(String.valueOf(this.game.getScore()));
+                this.overlays.get(State.IN_PROGRESS).updateText("Score: " + String.valueOf(this.game.getScore()));
                 this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
             }
         }
