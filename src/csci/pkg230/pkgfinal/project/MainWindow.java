@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,7 +34,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private Character player;
     private Entity ground;
     private ArrayList<Entity> obstacles = new ArrayList<>();
-    private JLabel scoreDisplay;
+    private HashMap<State, OverlayPanel> overlays = new HashMap<>();
 
     private static final String TICK_COMMAND = "tick";
 
@@ -42,13 +44,14 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     // State
     public enum State {
+        NONE,
         READY,
         IN_PROGRESS,
         PAUSED,
         GAME_OVER
     };
 
-    private State state;
+    private State state = State.NONE;
 
     public MainWindow() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -83,56 +86,17 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     // State
     public void moveTo(State newState) {
-        if (state == newState) {
+        if (newState == State.NONE || state == newState) {
             return;
         }
         
-        switch (state) {
-            case READY:
-                this.hideInstructionOverlay();
-                break;
-
-            case IN_PROGRESS:
-                break;
-
-            case PAUSED:
-                this.hidePauseOverlay();
-
-                break;
-
-            case GAME_OVER:
-                this.hideEndOverlay();
-
-                break;
-
-            default:
-                throw new UnsupportedOperationException("Invalid state change. Current state: " + state + " New state: " + newState);
+        if (state == State.NONE) {
+            this.overlays.get(newState).toggleOverlay();
+        } else {
+            this.overlays.get(this.state).toggleOverlay();
+            this.overlays.get(newState).toggleOverlay();
         }
         
-        switch (newState) {
-            case READY:
-                // Overlay instructions
-                this.showInstructionOverlay();
-
-                break;
-
-            case IN_PROGRESS:
-                break;
-
-            case PAUSED:
-                this.showPauseOverlay();
-
-                break;
-
-            case GAME_OVER:
-                this.showEndOverlay();
-
-                break;
-
-            default:
-                throw new UnsupportedOperationException("Invalid state change. Current state: " + state + " New state: " + newState);
-        }
-
         state = newState;
     }
 
@@ -141,6 +105,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.setupBackground(); // Add background first and add everything else on top
         this.setupPlayer(); // Initialize player before starting the ticks
         this.setupGround();
+        this.setupOverlays();
     }
 
     private void setupPlayer() {
@@ -163,46 +128,21 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     
     
     // Overlays
+    
+    private void setupOverlays() {
+        this.overlays.put(State.READY, new OverlayPanel("Press SPACE to begin…", new Rectangle(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 50, 400, 100)));
+        this.getContentPane().add(this.overlays.get(State.READY));
 
-    private void showInstructionOverlay() {
-        overlayPanel = new OverlayPanel("Press SPACE to begin…");
+        this.overlays.put(State.IN_PROGRESS, new OverlayPanel("Score: -", new Rectangle(0, 0, 100, 100)));
+        this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
 
-        this.getContentPane().add(overlayPanel);
+        this.overlays.put(State.PAUSED, new OverlayPanel("PAUSED", new Rectangle(0, 0, 100, 100)));
+        this.getContentPane().add(this.overlays.get(State.PAUSED));
+
+        this.overlays.put(State.GAME_OVER, new OverlayPanel("GAME OVER", new Rectangle(0, 0, 100, 100)));
+        this.getContentPane().add(this.overlays.get(State.GAME_OVER));
     }
-
-    private void hideInstructionOverlay() {
-        this.getContentPane().remove(overlayPanel);
-    }
-
-    private void showHUDOverlay() {
-        overlayPanel = new OverlayPanel("Score: -");
-
-        this.getContentPane().add(overlayPanel);
-    }
-
-    private void hideHUDOverlay() {
-        this.getContentPane().remove(overlayPanel);
-    }
-
-    private void showPauseOverlay() {
-        overlayPanel = new OverlayPanel("PAUSED");
-
-        this.getContentPane().add(overlayPanel);
-    }
-
-    private void hidePauseOverlay() {
-        this.getContentPane().remove(overlayPanel);
-    }
-
-    private void showEndOverlay() {
-        overlayPanel = new OverlayPanel("GAME OVER");
-
-        this.getContentPane().add(overlayPanel);
-    }
-
-    private void hideEndOverlay() {
-        this.getContentPane().remove(overlayPanel);
-    }
+    
 
     // Event Handlers
     // Timer Events
@@ -250,6 +190,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.timer.start();
         this.isRunning = true;
         this.lastTick = System.nanoTime() / 1000000;
+        this.moveTo(State.IN_PROGRESS);
     }
 
     private void update() {
@@ -310,7 +251,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             }
             if (!toRemove.isEmpty()) {
                 this.game.addPoint();
-                this.scoreDisplay.setText(String.valueOf(this.game.getScore()));
+//                this.scoreDisplay.setText(String.valueOf(this.game.getScore()));
                 this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
             }
         }
