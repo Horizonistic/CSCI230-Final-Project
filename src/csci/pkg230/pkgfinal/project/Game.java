@@ -21,9 +21,9 @@ public class Game {
     public void addPoint() {
         score += pointValue;
     }
-
-    public void setScore(int newScore) {
-        score = newScore;
+    
+    public void resetScore() {
+        this.score = 0;
     }
 
     public int getScore() {

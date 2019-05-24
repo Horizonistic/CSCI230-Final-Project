@@ -25,6 +25,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     private static final int TOP_OBSTACLE_START = 0;
     private static final int BOTTOM_OBSTACLE_START = 300;
+    
+    private static final String INSTRUCTIONS_TEXT = "Press SPACE to begin…";
+    private static final String SCORE_TEXT = "Score: 0";
+    private static final String PAUSED_TEXT = "PAUSED";
+    private static final String GAME_OVER_TEXT = "GAME OVER<br>Press SPACE to try again.";
 
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
@@ -69,19 +74,21 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         this.addKeyListener(this);
 
-        // Setup scene
-        this.setupScene();
+        setupScene();
+        setupTimer();
 
-        this.moveTo(State.READY);
-
-        // ~60 game ticks per second
-        this.timer = new Timer(18, this); // For 60 tick rate updates
-        this.timer.setActionCommand(TICK_COMMAND);
+        moveTo(State.READY);
 
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.getContentPane().setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.pack();
         this.repaint();
+    }
+    
+    private void setupTimer() {
+        // ~60 game ticks per second
+        this.timer = new Timer(18, this); // For 60 tick rate updates
+        this.timer.setActionCommand(TICK_COMMAND);
     }
 
     // State
@@ -89,14 +96,38 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         if (newState == State.NONE || state == newState) {
             return;
         }
-        
+
         if (state == State.NONE) {
             this.overlays.get(newState).toggleOverlay();
         } else {
             this.overlays.get(this.state).toggleOverlay();
             this.overlays.get(newState).toggleOverlay();
         }
-        
+
+        switch (newState) {
+            case READY:
+                break;
+                
+            case IN_PROGRESS:
+                this.isRunning = true;
+
+                break;
+
+            case PAUSED:
+                this.isRunning = false;
+
+                break;
+
+            case GAME_OVER:
+                this.isRunning = false;
+                this.overlays.get(State.GAME_OVER).updateText("<html><center>" + GAME_OVER_TEXT + "<br>Final Score: " + String.valueOf(this.game.getScore()) + "</center></html>");
+
+                break;
+
+            default:
+                break;
+        }
+
         state = newState;
     }
 
@@ -125,24 +156,21 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         this.getContentPane().add(backdrop);
     }
-    
-    
+
     // Overlays
-    
     private void setupOverlays() {
-        this.overlays.put(State.READY, new OverlayPanel("Press SPACE to begin…", new Rectangle(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 50, 400, 100)));
+        this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_TEXT, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.READY));
 
-        this.overlays.put(State.IN_PROGRESS, new OverlayPanel("Score: -", new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(SCORE_TEXT, GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
         this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
 
-        this.overlays.put(State.PAUSED, new OverlayPanel("PAUSED", new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_TEXT, GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
         this.getContentPane().add(this.overlays.get(State.PAUSED));
 
-        this.overlays.put(State.GAME_OVER, new OverlayPanel("GAME OVER", new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.GAME_OVER, new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.GAME_OVER));
     }
-    
 
     // Event Handlers
     // Timer Events
@@ -166,11 +194,25 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         int keyCode = event.getKeyCode();
 
         if (keyCode == KeyEvent.VK_SPACE) {
-            if (this.isRunning) {
-                this.player.jump();
+            switch (state) {
+                case IN_PROGRESS:
+                    this.player.jump();
+                    break;
+                    
+                case READY:
+                    this.startGame();
+                    break;
 
-            } else {
-                this.startGame();
+                case PAUSED:
+                    this.startGame();
+                    break;
+                    
+                case GAME_OVER:
+                    this.reset();
+                    break;
+
+                default:
+                    break;
             }
         }
     }
@@ -188,9 +230,16 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     // Game State
     private void startGame() {
         this.timer.start();
-        this.isRunning = true;
         this.lastTick = System.nanoTime() / 1000000;
         this.moveTo(State.IN_PROGRESS);
+    }
+    
+    private void reset() {
+        this.getContentPane().removeAll();
+        this.setupScene();
+        this.game.resetScore();
+        this.timer.restart();
+        this.moveTo(State.READY);
     }
 
     private void update() {
@@ -206,17 +255,17 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         // Collision detection
         if (this.player.getBounds().intersects(this.ground.getBounds())) {
-            this.isRunning = false;
+            this.moveTo(State.GAME_OVER);
         }
         if (!this.obstacles.isEmpty()) {
             for (Entity obstacle : this.obstacles) {
                 if (this.player.getBounds().intersects(obstacle.getBounds())) {
-                    this.isRunning = false;
+                    this.moveTo(State.GAME_OVER);
                 }
             }
         }
 
-        // Spawning and despawning obstacles         
+        // Spawning and despawning obstacles
         this.timeSinceLastSpawn += dTime;
 
         if (this.timeSinceLastSpawn > 2000) {
@@ -251,7 +300,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             }
             if (!toRemove.isEmpty()) {
                 this.game.addPoint();
-//                this.scoreDisplay.setText(String.valueOf(this.game.getScore()));
+                this.overlays.get(State.IN_PROGRESS).updateText("Score: " + String.valueOf(this.game.getScore()));
                 this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
             }
         }
