@@ -103,6 +103,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         if (state == State.NONE) {
             this.overlays.get(newState).toggleOverlay();
+        } else if (state == State.GAME_OVER && newState == State.PAUSED) {
+            return;
+            
         } else {
             this.overlays.get(this.state).toggleOverlay();
             this.overlays.get(newState).toggleOverlay();
