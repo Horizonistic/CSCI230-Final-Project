@@ -287,10 +287,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Removes all obstacles and resets player back to the starting position
      */
     private void reset() {
+        this.game.resetScore();
         this.obstacles.clear();
         this.getContentPane().removeAll();
         this.setupScene();
-        this.game.resetScore();
 //        this.timer.restart();
         this.moveTo(State.READY);
     }
