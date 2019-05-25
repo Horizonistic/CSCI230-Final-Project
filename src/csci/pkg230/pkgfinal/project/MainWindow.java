@@ -27,8 +27,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private static final int OBSTACLE_HEIGHT_VARIANCE = 400; // The deviance of the opening of the obstacles
 
     private static final String INSTRUCTIONS_HTML = "<html><h1 style=\"font-size: 1em;\">Press <span style=\"font-size: 1.1em; font-style: bold; color: rgb(15, 139, 153)\"><i>SPACE</i></span> to begin…</h1></html>";
-    private static final String SCORE_TEXT = "<html><h1 style=\"text-shadow: 2px 2px 5px gray;\">Score: %d</h1></html>";
-    private static final String PAUSED_HTML = "<html><center><h1 style=\"font-size: 1.5em;\">PAUSED</h1><h4 style=\"font-size:0.9em;\">Press SPACE to continue.</h4></center></html>";
+    private static final String SCORE_HTML = "<html><h1 style=\"text-shadow: 2px 2px 5px gray;\">Score: %d</h1></html>";
+    private static final String PAUSED_HTML = "<html><center><h1 style=\"font-size: 1.5em;\">PAUSED</h1><h4 style=\"font-size:0.9em;\">Press <span style=\"font-size: 1.1em; font-style: bold; color: rgb(15, 139, 153)\"><i>SPACE</i></span> to continue.</h4></center></html>";
+    private static final String GAME_OVER_HTML = "<html><center><h1 style=\"font-size: 1.5em;\">GAME OVER</h1>"
+                + "<h2 style=\"font-size:1.1em;\">Final Score: <span style=\"color:%s; text-shadow: 2px 2px 5px gray;\">%d</span>"
+                + "</h2><h4style=\"font-size: 0.5em;\">Press <span style=\"font-size: 1em; font-style: bold; color: rgb(255, 84, 0)\"><i>R</i></span> to try again.</h4></center></html>";
 
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
@@ -132,15 +135,11 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
         state = newState;
     }
-    
+
     private String gameOverText(int score) {
         String color = "rgb(66, 244, 113)";
-        
-        String string = "<html><center><h1 style=\"font-size: 1.5em;\">GAME OVER</h1>" + 
-                "<h2 style=\"font-size:1.2em;\">Final Score: <span style=\"color:%s; text-shadow: 2px 2px 5px gray;\">%d</span>" + 
-                "</h2><h4>Press SPACE to try again.</h4></center></html>";
-        
-        return String.format(string, color, score);
+
+        return String.format(GAME_OVER_HTML, color, score);
     }
 
     /*
@@ -188,7 +187,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.READY));
 
-        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(String.format(SCORE_TEXT, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
+        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(String.format(SCORE_HTML, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
         this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
 
         this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
@@ -197,7 +196,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         // Text for this is blank so we can add the score to is later
         this.overlays.put(State.GAME_OVER, new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.GAME_OVER));
-        
+
         if (this.state != State.NONE) {
             this.overlays.get(this.state).toggleOverlay();
         }
@@ -240,10 +239,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
                     this.startGame();
                     break;
 
-                case GAME_OVER:
-                    this.reset();
-                    break;
-
                 default:
                     break;
             }
@@ -253,8 +248,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         } else if (keyCode == KeyEvent.VK_Q) { // Quit
             quitGame();
 
-        } else {
-            System.out.println(keyCode);
+        } else if (keyCode == KeyEvent.VK_R) { // Reset
+            if (state == State.GAME_OVER) {
+                this.reset();
+            }
         }
     }
 
@@ -361,7 +358,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             // If there is an obstacle to remove then remove it and update the score
             if (!toRemove.isEmpty()) {
                 this.game.addPoint();
-                this.overlays.get(State.IN_PROGRESS).updateText(String.format(SCORE_TEXT, game.getScore()));
+                this.overlays.get(State.IN_PROGRESS).updateText(String.format(SCORE_HTML, game.getScore()));
                 this.obstacles.removeAll(toRemove); // To avoid ConcurrentModificationException
             }
         }
