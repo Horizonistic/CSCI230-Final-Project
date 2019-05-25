@@ -297,7 +297,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.obstacles.clear();
         this.getContentPane().removeAll();
         this.setupScene();
-//        this.timer.restart();
         this.moveTo(State.READY);
     }
 
@@ -346,14 +345,14 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             Entity bottomObstacle = new Entity(Entity.Type.OBSTACLE, bottomPosition);
             this.obstacles.add(bottomObstacle);
             this.getContentPane().add(bottomObstacle);
-            this.getContentPane().setComponentZOrder(bottomObstacle, 1);
+            this.getContentPane().setComponentZOrder(bottomObstacle, this.getContentPane().getComponentCount() - 2);
 
             // Top obstacle
             Point topPosition = new Point(WINDOW_WIDTH - 1, randomHeight + TOP_OBSTACLE_START - Entity.Dimensions.OBSTACLE_HEIGHT);
             Entity topObstacle = new Entity(Entity.Type.OBSTACLE, topPosition);
             this.obstacles.add(topObstacle);
             this.getContentPane().add(topObstacle);
-            this.getContentPane().setComponentZOrder(topObstacle, 1);
+            this.getContentPane().setComponentZOrder(topObstacle, this.getContentPane().getComponentCount() - 2);
 
             this.timeSinceLastSpawn = 0;
         }
