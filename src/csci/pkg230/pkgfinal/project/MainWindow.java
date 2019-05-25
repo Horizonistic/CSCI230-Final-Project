@@ -149,7 +149,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.setupPlayer(); // Initialize player before starting the ticks
         this.setupGround();
         this.setupOverlays();
-        this.setupBackground(); // Add background first and add everything else on top
+        this.setupBackground(); // Add background last so it's z-order is as high as possible
     }
 
     /*
@@ -186,22 +186,25 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Initializes the UI overlays and stores them in a HashMap
      */
     private void setupOverlays() {
-        this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
-        this.getContentPane().add(this.overlays.get(State.READY));
-        this.getContentPane().setComponentZOrder(this.overlays.get(State.READY), 2);
+        OverlayPanel overlay = new OverlayPanel(INSTRUCTIONS_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
+        this.overlays.put(State.READY, overlay);
+        this.getContentPane().add(overlay);
+        this.getContentPane().setComponentZOrder(overlay, 2);
 
-        this.overlays.put(State.IN_PROGRESS, new OverlayPanel(String.format(SCORE_HTML, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
-        this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
-        this.getContentPane().setComponentZOrder(this.overlays.get(State.IN_PROGRESS), 2);
+        overlay = new OverlayPanel(String.format(SCORE_HTML, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100));
+        this.overlays.put(State.IN_PROGRESS, overlay);
+        this.getContentPane().add(overlay);
+        this.getContentPane().setComponentZOrder(overlay, 2);
 
-        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
-        this.getContentPane().add(this.overlays.get(State.PAUSED));
-        this.getContentPane().setComponentZOrder(this.overlays.get(State.PAUSED), 2);
+        overlay = new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
+        this.overlays.put(State.PAUSED, overlay);
+        this.getContentPane().add(overlay);
+        this.getContentPane().setComponentZOrder(overlay, 2);
 
-        // Text for this is blank so we can add the score to is later
-        this.overlays.put(State.GAME_OVER, new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
-        this.getContentPane().add(this.overlays.get(State.GAME_OVER));
-        this.getContentPane().setComponentZOrder(this.overlays.get(State.GAME_OVER), 2);
+        overlay = new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
+        this.overlays.put(State.GAME_OVER, overlay);
+        this.getContentPane().add(overlay);
+        this.getContentPane().setComponentZOrder(overlay, 2);
 
         if (this.state != State.NONE) {
             this.overlays.get(this.state).toggleOverlay();
