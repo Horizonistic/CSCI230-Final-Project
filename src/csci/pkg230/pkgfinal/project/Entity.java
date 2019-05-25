@@ -105,6 +105,7 @@ public class Entity extends JPanel
                 break;
             
             case BACKGROUND:
+                this.hitbox = new Rectangle(this.position.x, this.position.y, Dimensions.BACKGROUND_WIDTH, Dimensions.BACKGROUND_HEIGHT);
                 break;
         }
     }
