@@ -146,10 +146,10 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Initializes all entities and UI elements
      */
     private void setupScene() {
-        this.setupBackground(); // Add background first and add everything else on top
         this.setupPlayer(); // Initialize player before starting the ticks
         this.setupGround();
         this.setupOverlays();
+        this.setupBackground(); // Add background first and add everything else on top
     }
 
     /*
@@ -168,6 +168,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private void setupGround() {
         this.ground = new Entity(Entity.Type.GROUND, new Point(0, WINDOW_HEIGHT - 50));
         this.getContentPane().add(this.ground);
+        this.getContentPane().setComponentZOrder(this.ground, 0);
     }
 
     /*
@@ -177,6 +178,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Entity backdrop = new Entity(Entity.Type.BACKGROUND, new Point(0, 0));
 
         this.getContentPane().add(backdrop);
+        this.getContentPane().setComponentZOrder(backdrop, this.getContentPane().getComponentCount() - 1);
     }
 
     // Overlays
@@ -186,16 +188,20 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private void setupOverlays() {
         this.overlays.put(State.READY, new OverlayPanel(INSTRUCTIONS_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.READY));
+        this.getContentPane().setComponentZOrder(this.overlays.get(State.READY), 2);
 
         this.overlays.put(State.IN_PROGRESS, new OverlayPanel(String.format(SCORE_HTML, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
         this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
+        this.getContentPane().setComponentZOrder(this.overlays.get(State.IN_PROGRESS), 2);
 
         this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.PAUSED));
+        this.getContentPane().setComponentZOrder(this.overlays.get(State.PAUSED), 2);
 
         // Text for this is blank so we can add the score to is later
         this.overlays.put(State.GAME_OVER, new OverlayPanel("", GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.GAME_OVER));
+        this.getContentPane().setComponentZOrder(this.overlays.get(State.GAME_OVER), 2);
 
         if (this.state != State.NONE) {
             this.overlays.get(this.state).toggleOverlay();
@@ -337,12 +343,14 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
             Entity bottomObstacle = new Entity(Entity.Type.OBSTACLE, bottomPosition);
             this.obstacles.add(bottomObstacle);
             this.getContentPane().add(bottomObstacle);
+            this.getContentPane().setComponentZOrder(bottomObstacle, 1);
 
             // Top obstacle
             Point topPosition = new Point(WINDOW_WIDTH - 1, randomHeight + TOP_OBSTACLE_START - Entity.Dimensions.OBSTACLE_HEIGHT);
             Entity topObstacle = new Entity(Entity.Type.OBSTACLE, topPosition);
             this.obstacles.add(topObstacle);
             this.getContentPane().add(topObstacle);
+            this.getContentPane().setComponentZOrder(topObstacle, 1);
 
             this.timeSinceLastSpawn = 0;
         }
