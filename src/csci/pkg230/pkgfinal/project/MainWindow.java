@@ -174,9 +174,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         Initializes the background
      */
     private void setupBackground() {
-//        ScrollingBackdrop backdrop = new ScrollingBackdrop(this.getWidth(), this.getHeight(), new Color(242, 255, 253), new Color(125, 198, 224));
-//
-//        this.getContentPane().add(backdrop);
+        Entity backdrop = new Entity(Entity.Type.BACKGROUND, new Point(0, 0));
+
+        this.getContentPane().add(backdrop);
     }
 
     // Overlays

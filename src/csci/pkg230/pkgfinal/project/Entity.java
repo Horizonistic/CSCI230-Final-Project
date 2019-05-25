@@ -21,6 +21,9 @@ public class Entity extends JPanel
         
         public static final int GROUND_WIDTH = MainWindow.WINDOW_WIDTH;
         public static final int GROUND_HEIGHT = 50;
+        
+        public static final int BACKGROUND_WIDTH = MainWindow.WINDOW_WIDTH;
+        public static final int BACKGROUND_HEIGHT = MainWindow.WINDOW_HEIGHT;
     }
     
     // todo: remove background?  if we don't use an image for it
@@ -47,7 +50,9 @@ public class Entity extends JPanel
         this.loadTextureFromType(type);
         this.loadHitboxFromType(type);
         
-        this.setBounds(this.hitbox);
+        if (hitbox != null) {
+            this.setBounds(this.hitbox);
+        }
     }
     
     /*
@@ -74,6 +79,8 @@ public class Entity extends JPanel
                 break;
             
             case BACKGROUND:
+                this.texture = new Sprite("images/background.png", new Rectangle(this.position.x, this.position.y, Dimensions.BACKGROUND_WIDTH, Dimensions.BACKGROUND_HEIGHT));
+                this.add(this.texture);
                 break;
         }
     }
