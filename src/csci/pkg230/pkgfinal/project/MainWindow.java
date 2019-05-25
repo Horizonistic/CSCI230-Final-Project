@@ -28,7 +28,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
 
     private static final String INSTRUCTIONS_HTML = "<html><h1>Press SPACE to begin…</h1></html>";
     private static final String SCORE_TEXT = "<html><h1 style=\"text-shadow: 2px 2px 5px gray;\">Score: %d</h1></html>";
-    private static final String PAUSED_HTML = "<html><h1>PAUSED</h1><h4>(Press SPACE to continue.)</h4></html>";
+    private static final String PAUSED_HTML = "<html><center><h1>PAUSED</h1><h4>(Press SPACE to continue.)</h4></center></html>";
 
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
@@ -101,12 +101,8 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         if (state == State.NONE) {
             this.overlays.get(newState).toggleOverlay();
         } else {
-            System.out.println("Current before: " + this.state + " " + this.overlays.get(this.state).isVisible());
-            System.out.println("New before: " + newState + " " + this.overlays.get(newState).isVisible());
             this.overlays.get(this.state).toggleOverlay();
             this.overlays.get(newState).toggleOverlay();
-            System.out.println("Current after: " + this.state + " " + this.overlays.get(this.state).isVisible());
-            System.out.println("New after: " + newState + " " + this.overlays.get(newState).isVisible());
         }
 
         switch (newState) {
@@ -143,8 +139,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         String string = "<html><center><h1 style=\"font-size: 1.5em;\">GAME OVER</h1>" + 
                 "<h2 style=\"font-size:1.2em;\">Final Score: <span style=\"color:%s; text-shadow: 2px 2px 5px gray;\">%d</span>" + 
                 "</h2><h4>Press SPACE to try again.</h4></center></html>";
-        
-        System.out.println(String.format(string, color, score));
         
         return String.format(string, color, score);
     }
@@ -197,7 +191,7 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
         this.overlays.put(State.IN_PROGRESS, new OverlayPanel(String.format(SCORE_TEXT, game.getScore()), GameUIFonts.headline, new Rectangle(0, 0, 300, 100)));
         this.getContentPane().add(this.overlays.get(State.IN_PROGRESS));
 
-        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, 100, 100)));
+        this.overlays.put(State.PAUSED, new OverlayPanel(PAUSED_HTML, GameUIFonts.headline, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)));
         this.getContentPane().add(this.overlays.get(State.PAUSED));
 
         // Text for this is blank so we can add the score to is later
