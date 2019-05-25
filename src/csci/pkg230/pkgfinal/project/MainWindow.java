@@ -26,9 +26,9 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     private static final int TIME_BETWEEN_OBSTACLES = 2000; // Frequency of obstacle appearance
     private static final int OBSTACLE_HEIGHT_VARIANCE = 400; // The deviance of the opening of the obstacles
 
-    private static final String INSTRUCTIONS_HTML = "<html><h1>Press SPACE to begin…</h1></html>";
+    private static final String INSTRUCTIONS_HTML = "<html><h1 style=\"font-size: 1em;\">Press <span style=\"font-size: 1.1em; font-style: bold; color: rgb(15, 139, 153)\"><i>SPACE</i></span> to begin…</h1></html>";
     private static final String SCORE_TEXT = "<html><h1 style=\"text-shadow: 2px 2px 5px gray;\">Score: %d</h1></html>";
-    private static final String PAUSED_HTML = "<html><center><h1>PAUSED</h1><h4>(Press SPACE to continue.)</h4></center></html>";
+    private static final String PAUSED_HTML = "<html><center><h1 style=\"font-size: 1.5em;\">PAUSED</h1><h4 style=\"font-size:0.9em;\">Press SPACE to continue.</h4></center></html>";
 
     private boolean isRunning = false;
     private int timeSinceLastSpawn = 0;
