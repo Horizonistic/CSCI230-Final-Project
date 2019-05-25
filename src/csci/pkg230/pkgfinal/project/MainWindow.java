@@ -287,8 +287,6 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener {
     }
 
     private void quitGame() {
-        // Show alert
-
         System.exit(0);
     }
 
